@@ -39,8 +39,8 @@ Let’s assume your project looks like this:
 If you’re starting fresh:
 
 `curl -fsSL https://bun.sh/install | bash`  
-`bun create react ./my-react-app`  
-`cd my-react-app`  
+`bun create react-app ./react-bun-k8s`  
+`cd react-bun-k8s`  
 `bun install`  
 `bun dev`
 
