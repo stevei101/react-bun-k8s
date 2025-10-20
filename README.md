@@ -1,335 +1,113 @@
-# React + Bun + Kubernetes 🚀
+# React + Bun + Kubernetes Boilerplate
 
-A **complete, production-grade scaffold** for modern React + TypeScript apps built with Bun, containerized with Docker/Podman, and deployed with Helm on Kubernetes.
+This project is a modern, production-ready boilerplate for building and deploying a React frontend application. It features a lightning-fast development environment with Bun, a highly optimized containerization workflow with Docker/Podman, and a scalable deployment strategy using Kubernetes and Helm.
 
-## 🧩 Tech Stack
+![Screenshot of the application UI](./preview.png)
 
-- ⚡ **Bun** - Fast JavaScript runtime and package manager
-- ⚛️ **React + TypeScript** - Modern frontend framework
-- 🐳 **Docker/Podman** - Containerization (choose your preference)
-- ☸️ **Kubernetes + Helm** - Container orchestration and deployment
-- 🔄 **GitHub Actions** - CI/CD pipeline
+## Core Concepts
 
-## ☸️ Kubernetes Setup with Podman
+This boilerplate is built on a set of modern, high-performance tools chosen to create a streamlined and efficient workflow.
 
-### Option 1: Kind (Kubernetes in Docker) - Recommended
-Kind runs Kubernetes in Docker containers, but works great with Podman.
+| Stage       | Tool                  | Why                                          |
+| ----------- | --------------------- | -------------------------------------------- |
+| Dev/Build   | **Bun**               | No npm, fast TypeScript-native builds        |
+| Packaging   | **Docker (multi-stage)** | Compact final image (~20MB)                  |
+| Deployment  | **Helm + Kubernetes** | Declarative, scalable, and cloud-native      |
+| Runtime     | **NGINX**             | Serve static React build, not a Node server  |
 
-```bash
-# Install Kind
-# macOS: brew install kind
-# Linux: go install sigs.k8s.io/kind@v0.20.0
+## Features
 
-# Create cluster
-kind create cluster --name react-app
+- **Frontend:** React 18 with TypeScript and a beautiful UI built with Tailwind CSS.
+- **Development:** Extremely fast development, testing, and package management powered by Bun.
+- **Containerization:** Optimized, multi-stage `Dockerfile` for small, secure production images. Compatible with both Docker and Podman.
+- **Deployment:** Declarative deployments to any Kubernetes cluster using a production-ready Helm chart.
+- **Code Quality:** Well-structured and refactored code with a component-based architecture.
 
-# Verify cluster
-kubectl cluster-info --context kind-react-app
-```
+## Prerequisites
 
-### Option 2: Minikube with Podman Driver
-Minikube can use Podman as its container runtime.
+Before you begin, ensure you have the following tools installed on your system:
 
-```bash
-# Install Minikube
-# macOS: brew install minikube
-# Linux: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+- **Bun:** For local development and package management.
+- **Podman** or **Docker:** For building and pushing container images.
+- **kubectl:** For interacting with your Kubernetes cluster.
+- **Helm:** For managing Kubernetes deployments.
+- **make:** For easily running the commands defined in the `Makefile`.
 
-# Start with Podman driver
-minikube start --driver=podman
+## Getting Started
 
-# Verify
-kubectl get nodes
-```
+There are two primary ways to run this application: locally for development or deployed to a Kubernetes cluster.
 
-### Option 3: Podman Machine (macOS/Windows)
-For macOS and Windows, Podman uses a VM.
+### Local Development
 
-```bash
-# Initialize Podman machine
-podman machine init
+For local development, you can run the application with hot-reloading using Bun's built-in development server.
 
-# Start Podman machine
-podman machine start
+1.  **Install Dependencies:**
+    ```bash
+    bun install
+    ```
 
-# Install Kind in Podman machine
-podman run --rm -v /var/lib/docker:/var/lib/docker \
-  -v /usr/local/bin:/usr/local/bin \
-  kindest/node:v1.27.3
-```
+2.  **Start the Development Server:**
+    ```bash
+    bun run dev
+    ```
 
-### Quick Setup Script
-```bash
-# Run the setup script
-./scripts/setup-k8s.sh
-
-# Or use Makefile
-make k8s-setup
-```
-
-## 🚀 Quick Start
-
-### Prerequisites Check
-```bash
-make check-prerequisites
-# or
-./scripts/check-prerequisites.sh
-```
-
-### Development
-```bash
-# Install dependencies
-bun install
-
-# Start development server
-make dev
-# or
-bun run dev
-```
-
-### Build & Deploy
-```bash
-# Build React app
-make build
-
-# Build container (auto-detects Docker/Podman)
-make container-build
-
-# Deploy to Kubernetes
-make deploy
-```
-
-## 📋 Available Commands
-
-### Development Commands
-| Command | Description |
-|---------|-------------|
-| `make dev` | Start development server |
-| `make build` | Build React application |
-| `make preview` | Preview built application |
-| `make clean` | Clean build artifacts |
-
-### Container Commands (Auto-detects Docker/Podman)
-| Command | Description |
-|---------|-------------|
-| `make container-build` | Build container image |
-| `make container-run` | Run container locally |
-| `make container-push REGISTRY=docker.io/username` | Push to registry |
-
-### Kubernetes Commands
-| Command | Description |
-|---------|-------------|
-| `make k8s-setup` | Interactive Kubernetes setup |
-| `make k8s-kind` | Create Kind cluster |
-| `make k8s-minikube` | Start Minikube with Podman |
-| `make k8s-stop` | Stop Kubernetes cluster |
-| `make k8s-status` | Check cluster status |
-
-### Complete Setup Commands
-| Command | Description |
-|---------|-------------|
-| `make full-setup` | Complete setup including Kubernetes |
-| `make dev-setup` | Development setup only |
+The application will be available at `http://localhost:5173`.
 
 ### Kubernetes Deployment
-| Command | Description |
-|---------|-------------|
-| `make deploy` | Deploy to Kubernetes |
-| `make deploy-dev` | Deploy development version |
-| `make deploy-prod` | Deploy production version |
 
-### Explicit Container Runtime Commands
-If you prefer explicit control:
+To deploy the application to a Kubernetes cluster, you will need access to a container registry (like Docker Hub, GHCR, etc.) that your cluster can pull images from.
 
-**Docker:**
-```bash
-make docker-build
-make docker-run
-make docker-push
-```
+1.  **Configure the Registry in `values.yaml`:**
+    Open `charts/frontend/values.yaml` and update the `image.repository` to point to your container registry and repository.
 
-**Podman:**
-```bash
-make podman-build
-make podman-run
-make podman-push
-```
+2.  **Build and Push the Image:**
+    Use the `make` commands to build and push your image. You will need to be logged into your container registry (`podman login your-registry.io`).
 
-## 🐳 Container Runtime Options
+    ```bash
+    # Build the container image
+    make podman-build
 
-This project supports both Docker and Podman. The unified scripts automatically detect which one is available.
+    # Tag the image with your repository and a version
+    podman tag localhost/react-bun-k8s:latest your-registry.io/your-repo:latest
 
-### Docker vs Podman Quick Comparison
+    # Push the image
+    podman push your-registry.io/your-repo:latest
+    ```
 
-| Feature | Docker | Podman |
-|---------|--------|--------|
-| **Security** | Root daemon | Rootless by default |
-| **Resource Usage** | Higher | Lower |
-| **Ecosystem** | Mature | Growing |
-| **Compatibility** | Industry standard | Docker-compatible |
+3.  **Deploy with Helm:**
+    Use the `helm-upgrade` command from the `Makefile`. This will install or upgrade the release in the `web` namespace, creating it if it doesn't exist.
 
-**Choose Docker if:** You need Docker Compose, have existing Docker workflows, or prefer the mature ecosystem.
+    ```bash
+    make helm-upgrade
+    ```
 
-**Choose Podman if:** Security is priority, you want rootless containers, or prefer open source solutions.
+    If your repository is private, make sure you have created an `imagePullSecrets` in the `web` namespace and configured it in the `values.yaml` file.
 
-## ☸️ Kubernetes Deployment
+## Makefile Commands
 
-### Environment-Specific Deployments
+This project includes a `Makefile` with convenient shortcuts for common tasks.
 
-The Helm chart supports multiple environments with different configurations:
+- `make podman-build`: Builds the container image using Podman.
+- `make podman-push IMAGE=...`: Pushes a specified image to a registry.
+- `make helm-install`: Installs the Helm chart.
+- `make helm-upgrade`: Upgrades the Helm release.
+- `make helm-uninstall`: Uninstalls the Helm release.
+- `make dev`: Starts the local development server.
+- `make build`: Builds the production version of the application.
 
-```bash
-# Development (1 replica, minimal resources)
-make deploy-dev
+## Project Structure
 
-# Staging (2 replicas, staging.myapp.example.com)
-make deploy-staging
+- **`.github/workflows/`**: Contains the CI/CD pipeline for automated deployments.
+- **`charts/frontend/`**: The Helm chart for deploying the application to Kubernetes.
+- **`public/`**: Static assets and the main `index.html` file.
+- **`src/`**: The React application source code.
+  - **`components/`**: Reusable React components.
+- **`Dockerfile`**: Multi-stage Dockerfile for building the production image.
+- **`nginx.conf`**: Custom Nginx configuration for serving the React application.
+- **`Makefile`**: A set of shortcuts for common development and deployment tasks.
 
-# Production (3 replicas, production resources)
-make deploy-prod
-```
+## Future Improvements
 
-### Custom Deployments
-
-```bash
-# Deploy with custom namespace and tag
-./scripts/deploy.sh my-namespace v1.2.3
-
-# Deploy to local Kubernetes (minikube/kind)
-make deploy-local
-```
-
-### Helm Commands
-```bash
-make helm-install    # Install chart
-make helm-upgrade    # Upgrade chart
-make helm-uninstall  # Remove chart
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-The project uses environment-specific Helm values:
-
-- **Development**: Minimal resources, single replica
-- **Staging**: Medium resources, staging domain
-- **Production**: High resources, production domains
-
-### Customizing Values
-Edit `charts/frontend/values.yaml` to customize:
-- Resource limits and requests
-- Ingress hosts and TLS
-- Security contexts
-- Health checks
-- Node selectors and affinity
-
-## 📁 Project Structure
-
-```
-react-bun-k8s/
-├── src/                    # React source code
-├── public/                 # Static assets
-├── charts/frontend/        # Helm chart
-│   ├── Chart.yaml
-│   ├── values.yaml
-│   └── templates/
-├── scripts/               # Helper scripts
-│   ├── build.sh          # Unified build script
-│   ├── push.sh           # Unified push script
-│   ├── deploy.sh         # Deployment script
-│   └── check-prerequisites.sh
-├── Dockerfile            # Multi-stage container build
-├── Makefile              # Convenient commands
-├── package.json          # Dependencies and scripts
-└── README.md            # This file
-```
-
-## 🛠️ Development Workflow
-
-### 1. Local Development
-```bash
-make dev-setup    # Check prerequisites and install deps
-make dev          # Start development server
-```
-
-### 2. Build & Test
-```bash
-make build        # Build React app
-make container-build  # Build container
-make container-run    # Test container locally
-```
-
-### 3. Deploy
-```bash
-make build-and-deploy  # Build app, container, and deploy
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-**"No container runtime found"**
-```bash
-# Install Docker or Podman
-# macOS: brew install docker podman
-# Linux: dnf install docker podman
-```
-
-**"Helm chart not found"**
-```bash
-# Install Helm
-# https://helm.sh/docs/intro/install/
-```
-
-**"Kubernetes cluster not accessible"**
-```bash
-# Check kubectl context
-kubectl config current-context
-
-# Set up local cluster (minikube/kind)
-minikube start
-# or
-kind create cluster
-```
-
-### Getting Help
-```bash
-make help  # Show all available commands
-```
-
-## 🌐 CI/CD Pipeline
-
-The project includes GitHub Actions workflow for automated deployment:
-
-1. **Push to main** → Triggers build
-2. **Build container** → Uses Docker/Podman
-3. **Push to registry** → Docker Hub, Quay, etc.
-4. **Deploy to K8s** → Helm deployment
-
-### Required GitHub Secrets
-- `DOCKERHUB_USERNAME` - Container registry username
-- `DOCKERHUB_TOKEN` - Container registry token
-- `KUBECONFIG` - Kubernetes configuration (optional)
-
-## 📚 Additional Resources
-
-- [Bun Documentation](https://bun.sh/docs)
-- [React Documentation](https://react.dev)
-- [Docker Documentation](https://docs.docker.com)
-- [Podman Documentation](https://podman.io/docs)
-- [Kubernetes Documentation](https://kubernetes.io/docs)
-- [Helm Documentation](https://helm.sh/docs)
-
----
-
-## 🎯 Summary
-
-This scaffold provides:
-- ✅ **Fast development** with Bun
-- ✅ **Flexible containerization** (Docker or Podman)
-- ✅ **Production-ready deployment** with Kubernetes + Helm
-- ✅ **Automated CI/CD** with GitHub Actions
-- ✅ **Environment-specific configurations**
-- ✅ **Security best practices**
-
-**Ready to build something amazing?** Start with `make dev-setup` and you're good to go! 🚀
+- **Server-Side Rendering (SSR):** Extend the project to use SSR with Bun for improved performance and SEO.
+- **GitOps:** Integrate with ArgoCD or FluxCD for a fully automated, GitOps-based deployment workflow.
+- **Alternative Web Server:** Swap NGINX for Caddy for automatic HTTPS and a simpler configuration experience.
