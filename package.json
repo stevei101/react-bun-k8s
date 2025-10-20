@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "bun --bun dev",
-    "build": "bun build --outdir dist --target browser src/index.tsx",
+    "build": "bun build --outdir dist --target browser src/index.tsx && cp public/index.html dist/",
     "preview": "bun --bun preview",
     "check": "./scripts/check-prerequisites.sh",
     "container:build": "./scripts/build.sh",

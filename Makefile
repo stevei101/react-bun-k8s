@@ -79,8 +79,8 @@ podman-build: ## Build with Podman explicitly
 podman-run: ## Run with Podman explicitly
 	podman run -p 8080:80 react-bun-k8s
 
-podman-push: ## Push with Podman explicitly
-	podman push react-bun-k8s
+podman-push: ## Push with Podman explicitly (usage: make podman-push IMAGE=your/image:tag)
+	podman push $(IMAGE)
 
 # Helm commands
 helm-install: ## Install Helm chart
