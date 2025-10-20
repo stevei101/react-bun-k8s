@@ -1,3 +1,5 @@
+# Multi-stage Dockerfile for React + Bun + NGINX
+# Compatible with both Docker and Podman
 # Stage 1: Build
 FROM oven/bun:1 AS build
 WORKDIR /app

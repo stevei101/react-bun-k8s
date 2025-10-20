@@ -4,7 +4,14 @@
   "scripts": {
     "dev": "bun --bun dev",
     "build": "bun build --outdir dist --target browser src/index.tsx",
-    "preview": "bun --bun preview"
+    "preview": "bun --bun preview",
+    "check": "./scripts/check-prerequisites.sh",
+    "container:build": "./scripts/build.sh",
+    "container:run": "make container-run",
+    "container:push": "./scripts/push.sh",
+    "deploy": "./scripts/deploy.sh",
+    "setup": "make dev-setup",
+    "help": "make help"
   },
   "dependencies": {
     "react": "^18.3.1",
