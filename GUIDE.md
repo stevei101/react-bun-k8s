@@ -70,8 +70,8 @@ Here’s a **minimal, production-ready Dockerfile**:
 
 Then build and test it locally:
 
-`docker build -t my-react-app .`  
-`docker run -p 8080:80 my-react-app`
+`docker build -t react-bun-k8s .`  
+`docker run -p 8080:80 react-bun-k8s`
 
 👉 open [http://localhost:8080](http://localhost:8080)
 
