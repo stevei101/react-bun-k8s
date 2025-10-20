@@ -2,9 +2,9 @@
   "name": "react-bun-k8s",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun dev",
-    "build": "bun run build",
-    "preview": "bun run preview"
+    "dev": "bun --bun dev",
+    "build": "bun build --outdir dist --target browser src/index.tsx",
+    "preview": "bun --bun preview"
   },
   "dependencies": {
     "react": "^18.3.1",
