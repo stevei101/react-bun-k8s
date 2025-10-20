@@ -74,7 +74,7 @@ docker-push: ## Push with Docker explicitly
 
 # Podman-specific commands (if you prefer explicit Podman usage)
 podman-build: ## Build with Podman explicitly
-	podman build -t react-bun-k8s .
+	podman build --format=docker -t react-bun-k8s .
 
 podman-run: ## Run with Podman explicitly
 	podman run -p 8080:80 react-bun-k8s

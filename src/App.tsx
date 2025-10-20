@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
+import { useState } from 'react';
 import { Sparkles, Rocket, Zap } from 'lucide-react';
-import "./index.css";
 
-const App = () => {
+export default function App() {
   const [count, setCount] = useState(0);
 
   return (
@@ -36,7 +34,7 @@ const App = () => {
               Welcome to the Future
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A clean, minimalist React + TypeScript app built with Bun,
+              A clean, minimalist React + TypeScript app built with Bun, 
               containerized with Docker, and deployed on Kubernetes with Helm.
             </p>
           </div>
@@ -102,6 +100,4 @@ const App = () => {
       </footer>
     </div>
   );
-};
-
-createRoot(document.getElementById("root")!).render(<App />);
+}
