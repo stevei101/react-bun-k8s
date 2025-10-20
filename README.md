@@ -1,217 +1,113 @@
-A **complete, production-grade GitHub repo scaffold** for a modern **React \+ TypeScript** app built with **Bun**, containerized with **Docker**, and deployed with **Helm** on Kubernetes.  
----
+# React + Bun + Kubernetes Boilerplate
 
-## **🚀 Project Overview**
+This project is a modern, production-ready boilerplate for building and deploying a React frontend application. It features a lightning-fast development environment with Bun, a highly optimized containerization workflow with Docker/Podman, and a scalable deployment strategy using Kubernetes and Helm.
 
-Your repo will look like this:
+![Screenshot of the application UI](./preview.png)
 
-`react-bun-k8s/`  
-`├── src/`  
-`│   └── index.tsx`  
-`├── public/`  
-`│   └── index.html`  
-`├── package.json`  
-`├── bun.lockb`  
-`├── tsconfig.json`  
-`├── Dockerfile`  
-`├── charts/`  
-`│   └── frontend/`  
-`│       ├── Chart.yaml`  
-`│       ├── values.yaml`  
-`│       └── templates/`  
-`│           ├── deployment.yaml`  
-`│           ├── service.yaml`  
-`│           └── ingress.yaml`  
-`├── .github/`  
-`│   └── workflows/`  
-`│       └── deploy.yml`  
-`└── README.md`
+## Core Concepts
 
-Here’s what each part does:
+This boilerplate is built on a set of modern, high-performance tools chosen to create a streamlined and efficient workflow.
 
-* **Bun** → Builds your React \+ TypeScript app fast
+| Stage       | Tool                  | Why                                          |
+| ----------- | --------------------- | -------------------------------------------- |
+| Dev/Build   | **Bun**               | No npm, fast TypeScript-native builds        |
+| Packaging   | **Docker (multi-stage)** | Compact final image (~20MB)                  |
+| Deployment  | **Helm + Kubernetes** | Declarative, scalable, and cloud-native      |
+| Runtime     | **NGINX**             | Serve static React build, not a Node server  |
 
-* **Dockerfile** → Creates a lightweight NGINX container (\~20MB)
+## Features
 
-* **Helm chart** → Deploys your app to Kubernetes
+- **Frontend:** React 18 with TypeScript and a beautiful UI built with Tailwind CSS.
+- **Development:** Extremely fast development, testing, and package management powered by Bun.
+- **Containerization:** Optimized, multi-stage `Dockerfile` for small, secure production images. Compatible with both Docker and Podman.
+- **Deployment:** Declarative deployments to any Kubernetes cluster using a production-ready Helm chart.
+- **Code Quality:** Well-structured and refactored code with a component-based architecture.
 
-* **GitHub Actions** → Builds \+ pushes the image, then deploys it automatically
+## Prerequisites
 
----
+Before you begin, ensure you have the following tools installed on your system:
 
-## **🧩 1\. React \+ Bun setup**
+- **Bun:** For local development and package management.
+- **Podman** or **Docker:** For building and pushing container images.
+- **kubectl:** For interacting with your Kubernetes cluster.
+- **Helm:** For managing Kubernetes deployments.
+- **make:** For easily running the commands defined in the `Makefile`.
 
-**package.json**
+## Getting Started
 
-`{`  
-  `"name": "react-bun-k8s",`  
-  `"version": "1.0.0",`  
-  `"scripts": {`  
-    `"dev": "bun dev",`  
-    `"build": "bun run build",`  
-    `"preview": "bun run preview"`  
-  `},`  
-  `"dependencies": {`  
-    `"react": "^18.3.1",`  
-    `"react-dom": "^18.3.1"`  
-  `},`  
-  `"devDependencies": {`  
-    `"typescript": "^5.4.0",`  
-    `"@types/react": "^18.2.0",`  
-    `"@types/react-dom": "^18.2.0"`  
-  `}`  
-`}`
+There are two primary ways to run this application: locally for development or deployed to a Kubernetes cluster.
 
-**tsconfig.json**
+### Local Development
 
-`{`  
-  `"compilerOptions": {`  
-    `"target": "ESNext",`  
-    `"module": "ESNext",`  
-    `"jsx": "react-jsx",`  
-    `"strict": true,`  
-    `"moduleResolution": "bundler",`  
-    `"allowImportingTsExtensions": true,`  
-    `"isolatedModules": true,`  
-    `"noEmit": true`  
-  `},`  
-  `"include": ["src"]`  
-`}`
+For local development, you can run the application with hot-reloading using Bun's built-in development server.
 
-**src/index.tsx**
+1.  **Install Dependencies:**
+    ```bash
+    bun install
+    ```
 
-`import React from "react";`  
-`import { createRoot } from "react-dom/client";`
+2.  **Start the Development Server:**
+    ```bash
+    bun run dev
+    ```
 
-`const App = () => <h1>Hello from React + Bun + Kubernetes 🚀</h1>;`
+The application will be available at `http://localhost:5173`.
 
-`createRoot(document.getElementById("root")!).render(<App />);`
+### Kubernetes Deployment
 
-**public/index.html**
+To deploy the application to a Kubernetes cluster, you will need access to a container registry (like Docker Hub, GHCR, etc.) that your cluster can pull images from.
 
-`<!DOCTYPE html>`  
-`<html lang="en">`  
-  `<head>`  
-    `<meta charset="UTF-8" />`  
-    `<title>React Bun K8s</title>`  
-  `</head>`  
-  `<body>`  
-    `<div id="root"></div>`  
-  `</body>`  
-`</html>`
+1.  **Configure the Registry in `values.yaml`:**
+    Open `charts/frontend/values.yaml` and update the `image.repository` to point to your container registry and repository.
 
----
+2.  **Build and Push the Image:**
+    Use the `make` commands to build and push your image. You will need to be logged into your container registry (`podman login your-registry.io`).
 
-## **🐳 2\. Dockerfile**
+    ```bash
+    # Build the container image
+    make podman-build
 
-`# Stage 1: Build`  
-`FROM oven/bun:1 as build`  
-`WORKDIR /app`  
-`COPY . .`  
-`RUN bun install`  
-`RUN bun run build`
+    # Tag the image with your repository and a version
+    podman tag localhost/react-bun-k8s:latest your-registry.io/your-repo:latest
 
-`# Stage 2: Serve`  
-`FROM nginx:alpine`  
-`COPY --from=build /app/dist /usr/share/nginx/html`  
-`EXPOSE 80`  
-`CMD ["nginx", "-g", "daemon off;"]`
+    # Push the image
+    podman push your-registry.io/your-repo:latest
+    ```
 
----
+3.  **Deploy with Helm:**
+    Use the `helm-upgrade` command from the `Makefile`. This will install or upgrade the release in the `web` namespace, creating it if it doesn't exist.
 
-## **☸️ 3\. Helm chart (`charts/frontend`)**
+    ```bash
+    make helm-upgrade
+    ```
 
-*(same templates as I showed before — deployment, service, ingress, values.yaml, etc.)*
+    If your repository is private, make sure you have created an `imagePullSecrets` in the `web` namespace and configured it in the `values.yaml` file.
 
----
+## Makefile Commands
 
-## **⚙️ 4\. GitHub Actions workflow**
+This project includes a `Makefile` with convenient shortcuts for common tasks.
 
-**.github/workflows/deploy.yml**
+- `make podman-build`: Builds the container image using Podman.
+- `make podman-push IMAGE=...`: Pushes a specified image to a registry.
+- `make helm-install`: Installs the Helm chart.
+- `make helm-upgrade`: Upgrades the Helm release.
+- `make helm-uninstall`: Uninstalls the Helm release.
+- `make dev`: Starts the local development server.
+- `make build`: Builds the production version of the application.
 
-`name: Deploy Frontend`
+## Project Structure
 
-`on:`  
-  `push:`  
-    `branches: [ main ]`
+- **`.github/workflows/`**: Contains the CI/CD pipeline for automated deployments.
+- **`charts/frontend/`**: The Helm chart for deploying the application to Kubernetes.
+- **`public/`**: Static assets and the main `index.html` file.
+- **`src/`**: The React application source code.
+  - **`components/`**: Reusable React components.
+- **`Dockerfile`**: Multi-stage Dockerfile for building the production image.
+- **`nginx.conf`**: Custom Nginx configuration for serving the React application.
+- **`Makefile`**: A set of shortcuts for common development and deployment tasks.
 
-`jobs:`  
-  `build-and-deploy:`  
-    `runs-on: ubuntu-latest`  
-    `steps:`  
-      `- name: Checkout code`  
-        `uses: actions/checkout@v4`
+## Future Improvements
 
-      `- name: Set up Docker Buildx`  
-        `uses: docker/setup-buildx-action@v3`
-
-      `- name: Log in to Docker Hub`  
-        `uses: docker/login-action@v3`  
-        `with:`  
-          `username: ${{ secrets.DOCKERHUB_USERNAME }}`  
-          `password: ${{ secrets.DOCKERHUB_TOKEN }}`
-
-      `- name: Build and push image`  
-        `uses: docker/build-push-action@v5`  
-        `with:`  
-          `push: true`  
-          `tags: ${{ secrets.DOCKERHUB_USERNAME }}/react-bun-k8s:latest`
-
-      `- name: Set up Helm`  
-        `uses: azure/setup-helm@v4`
-
-      `- name: Deploy to Kubernetes`  
-        `run: |`  
-          `helm upgrade --install frontend ./charts/frontend \`  
-            `--namespace web --create-namespace \`  
-            `--set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/react-bun-k8s \`  
-            `--set image.tag=latest`
-
-💡 Set GitHub Secrets:
-
-* `DOCKERHUB_USERNAME`
-
-* `DOCKERHUB_TOKEN`
-
-* (Optionally) `KUBECONFIG` if you’re deploying directly from GitHub to a cluster
-
----
-
-## **📘 5\. README (usage summary)**
-
-**README.md**
-
-`# React + TypeScript + Bun + Kubernetes 🚀`
-
-`A modern, lightweight, and production-ready frontend scaffold.`
-
-`## 🧩 Stack`  
-`- ⚡ Bun for build (faster than Node/npm)`  
-`- 🐳 Docker multi-stage image`  
-`- ☸️ Helm for Kubernetes deployment`  
-`- 🔄 GitHub Actions CI/CD pipeline`
-
-`## 🚀 Quick start`
-
-```` ```bash ````  
-`bun install`  
-`bun run dev`
-
-## **🐳 Build Docker image**
-
-`docker build -t react-bun-k8s .`  
-`docker run -p 8080:80 react-bun-k8s`
-
-## **☸️ Deploy to Kubernetes**
-
-`helm install frontend ./charts/frontend --namespace web --create-namespace`
-
-`---`
-
-`## 🌐 Deployment flow`  
-``1. Push to `main` → GitHub Actions builds the Docker image``    
-`2. Image pushed to Docker Hub`    
-`3. Helm deploys to your Kubernetes cluster (automatically or manually)`    
-`4. Ingress exposes your React app publicly`  
-
-`---`  
+- **Server-Side Rendering (SSR):** Extend the project to use SSR with Bun for improved performance and SEO.
+- **GitOps:** Integrate with ArgoCD or FluxCD for a fully automated, GitOps-based deployment workflow.
+- **Alternative Web Server:** Swap NGINX for Caddy for automatic HTTPS and a simpler configuration experience.
